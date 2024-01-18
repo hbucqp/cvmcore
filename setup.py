@@ -33,7 +33,7 @@ with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
 
 
 setup(
-    name="cvmblaster",
+    name="cvmcore",
     version=about['__version__'],
     keywords=["pip", "mlst", "cgmlst", "plot"],
     description="SZQ lab data analysis core function",
@@ -56,11 +56,11 @@ setup(
         'Topic :: Software Development :: Build Tools',
         'License :: OSI Approved :: MIT License',   # Again, pick a license
         # Specify which pyhton versions that you want to support
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
     ],
     # entry_points={
     #     'console_scripts': [
