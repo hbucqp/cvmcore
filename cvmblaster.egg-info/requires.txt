@@ -1,0 +1,7 @@
+Bio
+pandas
+setuptools
+matplotlib
+numpy
+scipy
+tabulate
