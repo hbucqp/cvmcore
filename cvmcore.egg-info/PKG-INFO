@@ -1,0 +1,29 @@
+Metadata-Version: 2.1
+Name: cvmcore
+Version: 1.0.1
+Summary: SZQ lab data analysis core function
+Home-page: https://github.com/hbucqp/cvmcore
+Author: Qingpo Cui
+Author-email: cqp@cau.edu.cn
+License: MIT Licence
+Keywords: pip,mlst,cgmlst,plot
+Platform: any
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: Software Development :: Build Tools
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Description-Content-Type: text/markdown
+
+cvmcore
+===
+![PYPI](https://img.shields.io/pypi/v/cvmbcore)
+
+## Introduction
+The core function of data analysis used by SZQ lab from China Agricultural University
+
+

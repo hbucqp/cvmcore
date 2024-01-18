@@ -1,0 +1,14 @@
+README.md
+requirements.txt
+setup.py
+cvmcore/__init__.py
+cvmcore/cvmcore.py
+cvmcore/test.py
+cvmcore.egg-info/PKG-INFO
+cvmcore.egg-info/SOURCES.txt
+cvmcore.egg-info/dependency_links.txt
+cvmcore.egg-info/requires.txt
+cvmcore.egg-info/top_level.txt
+cvmcore/inputdir/CPF_RS14355.fasta
+cvmcore/inputdir/CPF_RS14360.fasta
+cvmcore/inputdir/CPF_RS14365.fasta
