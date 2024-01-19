@@ -73,6 +73,60 @@ class cvmbox():
 class cvmplot():
     pass
 
+    def rectree(matrix,
+                figsize: Optional[Tuple]=None,
+                labels: Optional[List]=None,
+                scale_max: float=10):
+        """
+        Drawing a rectangular dendrogram using scipy dendrogram function.
+        Parameters
+        -----------
+        matrix: linkage matrix
+            A matrix returned by scipy.cluster.hierarchy.linkage.
+        figsize: (x, y) tuple-like
+            1D tuple-like of floats to specify the figure size.
+        labels: list
+            The list of the sample's name.
+        scale_max: float
+            The maximum value of the scale.
+
+        Returns
+        -------
+        Raises
+        ------
+        Notes
+        -----
+        References
+        ----------
+        See Also
+        --------
+        Examples
+        --------
+        """
+        if figsize == None:
+            figsize = (15, 15)
+
+        MatrixS = matrix.shape
+
+        fig, ax = plt.subplots(1, 1, figsize=figsize)
+        dendrogram(matrix, ax=ax, orientation='left', labels=labels)
+
+        # set intervals on axis
+        ax.set_xticks(np.arange(0, scale_max, 1))
+        ax.set_xlim(scale_max, 0)
+
+        # move spines of ax
+        ax.spines[['bottom', 'right', 'left']].set_visible(False)
+
+        # move scale bar on top
+        ax.xaxis.tick_top()
+        ax.xaxis.set_label_position('top')
+
+        # save plot
+        plt.tight_layout()
+        plt.show()
+        return ax
+
     def circulartree(Z2,
                      fontsize: float=8,
                      open_angle: float=0,
