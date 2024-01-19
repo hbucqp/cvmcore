@@ -19,11 +19,12 @@ from Bio.Blast.Applications import NcbimakeblastdbCommandline
 
 
 # matplotlib
+import matplotlib
 from matplotlib import pyplot as plt
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
 from matplotlib.transforms import Affine2D
-
+from matplotlib.colors import LinearSegmentedColormap
 from typing import Optional, List, Dict, Union, Tuple
 
 plt.rcParams['font.family'] = 'sans-serif'
@@ -176,11 +177,11 @@ class cvmplot():
         ymax = np.amax(Z2['dcoord'])
 
         ucolors = sorted(set(Z2["color_list"]))
-        # print(ucolors)
+        # print(f'ucolors is {ucolors}')
         #cmap = cm.gist_rainbow(np.linspace(0, 1, len(ucolors)))
         cmp = plt.get_cmap(palette, len(ucolors))
         # print(cmp)
-        if type(cmp) == matplotlib.colors.LinearSegmentedColormap:
+        if type(cmp) == LinearSegmentedColormap:
             cmap = cmp(np.linspace(0, 1, len(ucolors)))
         else:
             cmap = cmp.colors
@@ -188,13 +189,17 @@ class cvmplot():
         i = 0
         label_coords = []
         leaf_coords = []
-        # Z2["color_list"] = list(np.full(149, 'black'))
+        check_coords = []
+
+        # Get the xtick position and create iv_ticks array
+        iv_ticks = np.arange(5, len(Z2['ivl']) * 10 + 5, 10)
+
         for x, y, c in sorted(zip(Z2['icoord'], Z2['dcoord'], Z2["color_list"])):
-            # if not branch_color:
-            #     _color='black'
-            # else:
-            #     _color=cmap[ucolors.index(c)]
-            _color = 'black'
+            if not branch_color:
+                _color = 'black'
+            else:
+                _color = cmap[ucolors.index(c)]
+            # _color = 'black'
 
             # np.abs(_xr1)<0.000000001 and np.abs(_yr1) <0.000000001:
             if c == "C0":
@@ -221,10 +226,10 @@ class cvmplot():
             _yr3 = _y[1] * r[3]
 
             # calculate the new coordinate
-            new_xr0, new_yr0 = rotate_point(_xr0, _yr0, start_angle)
-            new_xr1, new_yr1 = rotate_point(_xr1, _yr1, start_angle)
-            new_xr2, new_yr2 = rotate_point(_xr2, _yr2, start_angle)
-            new_xr3, new_yr3 = rotate_point(_xr3, _yr3, start_angle)
+            new_xr0, new_yr0 = cvmplot.rotate_point(_xr0, _yr0, start_angle)
+            new_xr1, new_yr1 = cvmplot.rotate_point(_xr1, _yr1, start_angle)
+            new_xr2, new_yr2 = cvmplot.rotate_point(_xr2, _yr2, start_angle)
+            new_xr3, new_yr3 = cvmplot.rotate_point(_xr3, _yr3, start_angle)
 
             # plotting radial lines
             ax.plot([new_xr0, new_xr1], [new_yr0, new_yr1],
@@ -233,50 +238,90 @@ class cvmplot():
                     c=_color, linewidth=linewidth, rasterized=True)
 
             # plotting circular links between nodes
-            if new_yr1 > 0 and new_yr2 > 0:
+            if new_yr1 >= 0 and new_yr2 >= 0:
                 link = np.sqrt(
                     r[1]**2 - np.linspace(new_xr1, new_xr2, 10000)**2)
                 ax.plot(np.linspace(new_xr1, new_xr2, 10000), link,
                         c=_color, linewidth=linewidth, rasterized=True)
-            elif new_yr1 < 0 and new_yr2 < 0:
+                # ax.plot(link, np.linspace(new_xr1, new_xr2, 10000),
+                #         c=_color, linewidth=linewidth, rasterized=True)
+
+            elif new_yr1 <= 0 and new_yr2 <= 0:
                 link = -np.sqrt(r[1]**2 -
                                 np.linspace(new_xr1, new_xr2, 10000)**2)
 
                 ax.plot(np.linspace(new_xr1, new_xr2, 10000), link,
                         c=_color, linewidth=linewidth, rasterized=True)
-            elif new_yr1 > 0 and new_yr2 < 0:
+            elif new_yr1 >= 0 and new_yr2 <= 0:
                 _r = r[1]
                 if new_xr1 < 0 or new_xr2 < 0:
                     _r = -_r
-                    link = -np.sqrt(r[1]**2 -
-                                    np.linspace(new_yr1, new_yr2, 10000)**2)
-                    # print(link)
-                    # print(dict(zip(np.linspace(_xr1, _r, 10000), link)))
-                    ax.plot(link, np.linspace(new_yr1, new_yr2, 10000),
-                            c=_color, linewidth=linewidth, rasterized=True)
+                link = np.sqrt(r[1]**2 -
+                               np.linspace(new_xr1, _r, 10000)**2)
+                # print(link)
+                # print(dict(zip(np.linspace(_xr1, _r, 10000), link)))
+                ax.plot(np.linspace(new_xr1, _r, 10000), link,
+                        c=_color, linewidth=linewidth, rasterized=True)
+                link = -np.sqrt(r[1]**2 -
+                                np.linspace(_r, new_xr2, 10000)**2)
+                # print(link)
+                # print(dict(zip(np.linspace(_xr1, _r, 10000), link)))
+                ax.plot(np.linspace(_r, new_xr2, 10000), link,
+                        c=_color, linewidth=linewidth, rasterized=True)
+
             else:
-                link = np.sqrt(
-                    r[1]**2 - np.linspace(new_yr1, new_yr2, 10000)**2)
-                ax.plot(link, np.linspace(new_yr1, new_yr2, 10000),
+                _r = r[1]
+                if new_xr1 > 0 or new_xr2 > 0:
+                    _r = r[1]
+                link = -np.sqrt(r[1]**2 - np.linspace(new_xr1, _r, 10000)**2)
+
+                ax.plot(np.linspace(new_xr1, _r, 10000), link,
+                        c=_color, linewidth=linewidth, rasterized=True)
+                link = np.sqrt(r[1]**2 - np.linspace(_r, new_xr2, 10000)**2)
+                ax.plot(np.linspace(_r, new_xr2, 10000), link,
                         c=_color, linewidth=linewidth, rasterized=True)
 
                 # Calculating the x, y coordinates and rotation angles of labels and the leaf points coordinates
 
-            if y[0] == 0:
-                label_coords.append(
-                    [(1.05 + offset) * new_xr0, (1.05 + offset) * new_yr0, (360 - open_angle) * x[0] / xmax])
-                leaf_coords.append([new_xr0, new_yr0])
-                #plt.text(1.05*_xr0, 1.05*_yr0, Z2['ivl'][i],{'va': 'center'},rotation_mode='anchor', rotation=360*x[0]/xmax)
-                i += 1
-                # print('Label_coords')
-                # print(label_coords)
-            if y[3] == 0:
-                label_coords.append(
-                    [(1.05 + offset) * new_xr3, (1.05 + offset) * new_yr3, (360 - open_angle) * x[2] / xmax])
-                leaf_coords.append([new_xr3, new_yr3])
-                #plt.text(1.05*_xr3, 1.05*_yr3, Z2['ivl'][i],{'va': 'center'},rotation_mode='anchor', rotation=360*x[2]/xmax)
-                i += 1
-            # print(label_coords)
+            if y[0] == 0 and x[0] in iv_ticks:
+                # print(f'{x[0]},{y[0]}')
+                leaf_loc = [x[0], y[0]]
+                if leaf_loc not in check_coords:
+                    check_coords.append([x[0], y[0]])
+                    leaf_coords.append([new_xr0, new_yr0])
+                    # test_coords.append([x[0], y[0]])
+                    label_coords.append(
+                        [(1.05 + offset) * new_xr0, (1.05 + offset) * new_yr0, (360 - open_angle) * x[0] / xmax])
+            if y[3] == 0 and x[3] in iv_ticks:
+                leaf_loc = [x[3], y[3]]
+                # print(f'{x[3]},{y[3]}')
+                if leaf_loc not in check_coords:
+                    check_coords.append([x[3], y[3]])
+                    leaf_coords.append([new_xr3, new_yr3])
+                    # test_coords.append([x[3], y[3]])
+                    label_coords.append(
+                        [(1.05 + offset) * new_xr3, (1.05 + offset) * new_yr3, (360 - open_angle) * x[2] / xmax])
+        # a = len(label_coords)
+        # b = len(leaf_coords)
+        # c = len(check_coords)
+        # print(f'label_coords is {a}')
+        # print(f'leaf_coords is {b}')
+        # print(f'check_coords is {c}')
+        # # if y[0] == 0:
+        #     label_coords.append(
+        #         [(1.05 + offset) * new_xr0, (1.05 + offset) * new_yr0, (360 - open_angle) * x[0] / xmax])
+        #     leaf_coords.append([new_xr0, new_yr0])
+        #     #plt.text(1.05*_xr0, 1.05*_yr0, Z2['ivl'][i],{'va': 'center'},rotation_mode='anchor', rotation=360*x[0]/xmax)
+        #     i += 1
+        #     # print('Label_coords')
+        #     # print(label_coords)
+        # if y[3] == 0:
+        #     label_coords.append(
+        #         [(1.05 + offset) * new_xr3, (1.05 + offset) * new_yr3, (360 - open_angle) * x[2] / xmax])
+        #     leaf_coords.append([new_xr3, new_yr3])
+        #     #plt.text(1.05*_xr3, 1.05*_yr3, Z2['ivl'][i],{'va': 'center'},rotation_mode='anchor', rotation=360*x[2]/xmax)
+        #     i += 1
+        # print(label_coords)
 
         # print(label_coords)
         if addlabels == True:
@@ -304,7 +349,8 @@ class cvmplot():
                 for (_x, _y), label in zip(leaf_coords, Z2['ivl']):
                     point = ax.scatter(_x, _y, color=list(
                         point_colors[label].keys())[0], s=pointsize)
-                    legend_elements = point_legend(point_colors, fontsize + 2)
+                    legend_elements = cvmplot.point_legend(
+                        point_colors, fontsize + 2)
                     plt.legend(handles=legend_elements,
                                loc='upper left',
                                bbox_to_anchor=(1.04, 1),
@@ -314,7 +360,7 @@ class cvmplot():
 
             else:
                 for (_x, _y), label in zip(leaf_coords, Z2['ivl']):
-                    point = ax.scatter(_x, _y, size=pointsize)
+                    point = ax.scatter(_x, _y, color='g', s=pointsize)
                     plt.gca().add_artist(point)
 
         # plt.draw()
@@ -458,6 +504,7 @@ class cvmplot():
         plt.show()
         return ax
 
+    @staticmethod
     def rotate_point(x: float, y: float, theta: float):
         """
         rotate the given point a angle based on origin (0,0)
@@ -476,6 +523,7 @@ class cvmplot():
         new_y = x * np.sin(angle) + y * np.cos(angle)
         return new_x, new_y
 
+    @staticmethod
     def point_legend(point_colors: Optional[dict]=None,
                      markersize: float=10):
         """
