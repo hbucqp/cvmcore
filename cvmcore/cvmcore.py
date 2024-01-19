@@ -363,6 +363,7 @@ class cvmplot():
                     point = ax.scatter(_x, _y, color='g', s=pointsize)
                     plt.gca().add_artist(point)
 
+        # developing...
         # plt.draw()
         # # Plot strip
         # num_samples = 150
