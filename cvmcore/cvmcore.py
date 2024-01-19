@@ -616,3 +616,71 @@ class cvmplot():
         legend_element = [Line2D([0], [0], marker='o', color='w', markerfacecolor=Cate_dict[key],
                                  label=key, markersize=markersize) for key in Cate_dict.keys()]
         return legend_element
+
+    @staticmethod
+    def get_diff_matrix(array,
+                        chunks: Optional[Tuple]=None):
+        """
+        Function to count the number of differences of values between rows, default ignoring NaN
+        Parameters
+        ----------
+        array: numpy.array
+            The array format of the input table
+        chunks: (x, y)
+            1D tuple-like of floats to specify the chunks size
+
+        Returns
+        -------
+        A matrix store the number of differenct values between rows.
+
+        Raises
+        ------
+        Notes
+        -----
+        References
+        ----------
+        See Also
+        --------
+        Examples
+        --------
+        """
+        darray = da.from_array(array, chunks=(100, 100))
+        valid_mask = da.logical_and(
+            ~da.isnan(darray[:, None]), ~da.isnan(darray))
+        diff_count = da.sum(valid_mask, axis=-1) - \
+            da.sum(da.equal(darray[:, None], darray), axis=-1)
+        diff_matrix = diff_count.compute()
+        return diff_matrix
+
+    @staticmethod
+    def get_diff_df(df):
+        """
+        Function to count the number of differences of values between rows, default ignoring NaN
+        The index of input dataframe should be your sample name.
+
+        Parameters
+        -------------
+        df: pandas.dataframe
+            The data frame store the MLST/cgMLST or other data
+
+        Returns
+        -------
+        A dataframe store the number of differenct values between rows with sample name as the dataframe columns or index.
+
+        Raises
+        ------
+        Notes
+        -----
+        References
+        ----------
+        See Also
+        --------
+        Examples
+        --------
+        """
+        df = df.astype('float')
+        labels = list(df.index)
+        matrix = df.values
+        diff_matrix = cvmplot.get_diff_matrix(matrix)
+        diff_df = pd.DataFrame(diff_matrix, index=labels, columns=labels)
+        return diff_df
