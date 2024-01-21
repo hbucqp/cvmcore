@@ -2,7 +2,7 @@ import os
 import sys
 
 # data process
-import dask.array as aa
+import dask.array as da
 import numpy as np
 import pandas as pd
 from scipy.cluster.hierarchy import linkage, dendrogram, complete, to_tree
@@ -20,11 +20,13 @@ from Bio.Blast.Applications import NcbimakeblastdbCommandline
 
 # matplotlib
 import matplotlib
+import matplotlib as mpl
 from matplotlib import pyplot as plt
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
 from matplotlib.transforms import Affine2D
 from matplotlib.colors import LinearSegmentedColormap
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from typing import Optional, List, Dict, Union, Tuple
 
 plt.rcParams['font.family'] = 'sans-serif'
@@ -76,6 +78,7 @@ class cvmplot():
     def rectree(matrix,
                 figsize: Optional[Tuple]=None,
                 labels: Optional[List]=None,
+                no_labels: bool=False,
                 scale_max: float=10):
         """
         Drawing a rectangular dendrogram using scipy dendrogram function.
@@ -109,7 +112,8 @@ class cvmplot():
         MatrixS = matrix.shape
 
         fig, ax = plt.subplots(1, 1, figsize=figsize)
-        dendrogram(matrix, ax=ax, orientation='left', labels=labels)
+        dendro_info = dendrogram(
+            matrix, ax=ax, orientation='left', labels=labels, no_labels=no_labels)
 
         # set intervals on axis
         ax.set_xticks(np.arange(0, scale_max, 1))
@@ -125,7 +129,7 @@ class cvmplot():
         # save plot
         plt.tight_layout()
         plt.show()
-        return ax
+        return dendro_info, ax
 
     def circulartree(Z2,
                      fontsize: float=8,
@@ -559,6 +563,172 @@ class cvmplot():
         plt.show()
         return ax
 
+    def heatmap(data,
+                order: Optional[List]=None,
+                figsize=None,
+                cmap=None,
+                yticklabel: bool=True,
+                cbar: bool=False,
+                vmin: float=0,
+                vmax: float=100,
+                center=None,
+                ax=None):
+        """
+        Drawing a heatmap that could concatenate to dendrogram.
+        Parameters
+        -----------
+        data : rectangular dataset
+            2D dataset that can be coerced into an ndarray. If a Pandas DataFrame
+            is provided, the index/column information will be used to label the
+            columns and rows.
+        order: list
+            A list that reindex the input 2D dataset.
+        vmin, vmax : floats, optional
+            Values to anchor the colormap, otherwise they are inferred from the
+            data and other keyword arguments.
+        cmap : matplotlib colormap name or object, or list of colors, optional
+            The mapping from data values to color space. If not provided, the
+            default will depend on whether ``center`` is set.
+        yticklabel : bool, optional
+            Whether to draw yticklabels.
+        cbar : bool, optional
+            Whether to draw a colorbar.
+        center : float, optional
+            The value at which to center the colormap when plotting divergant data.
+            Using this parameter will change the default ``cmap`` if none is
+            specified.
+        ax : matplotlib Axes, optional
+            Axes in which to draw the plot, otherwise use the currently-active Axes.
+
+        """
+        # We always want to have a DataFrame with semantic information
+        # and an ndarray to pass to matplotlib
+
+        if figsize == None:
+            figsize = (10, 6)
+        else:
+            figsize = figsize
+
+        if ax is None:
+            ax = plt.gca()
+
+        # process dataframe or ndarray
+        if isinstance(data, pd.DataFrame):
+            plot_data = data.values
+        else:
+            plot_data = np.asarray(data)
+            data = pd.DataFrame(plot_data)
+
+        # reindex the data frame using the list returned by scipy.cluster.hierarchy.dendrogram
+        if order is not None:
+            data = data.reindex(order)
+
+        # process colormap
+         # Choose default colormaps if not provided
+        if cmap is None:
+            if center is None:
+                cmap = mpl.cm.get_cmap('rocket')
+            else:
+                cmap = mpl.cm.get_cmap('icefire')
+        elif isinstance(cmap, str):
+            cmap = get_colormap(cmap)
+        elif isinstance(cmap, list):
+            cmap = mpl.colors.ListedColormap(cmap)
+        else:
+            cmap = cmap
+
+        # Recenter a divergent colormap
+        if center is not None:
+
+            # Copy bad values
+            # in mpl<3.2 only masked values are honored with "bad" color spec
+            # (see https://github.com/matplotlib/matplotlib/pull/14257)
+            bad = cmap(np.ma.masked_invalid([np.nan]))[0]
+
+            # under/over values are set for sure when cmap extremes
+            # do not map to the same color as +-inf
+            # under = cmap(-np.inf)
+            # over = cmap(np.inf)
+            under = '#c8c8c8'
+            over = '#c8c8c8'
+            under_set = under != cmap(0)
+            over_set = over != cmap(cmap.N - 1)
+
+            vrange = max(vmax - center, center - vmin)
+            normlize = mpl.colors.Normalize(center - vrange, center + vrange)
+            cmin, cmax = normlize([vmin, vmax])
+            cc = np.linspace(cmin, cmax, 256)
+            cmap = mpl.colors.ListedColormap(cmap(cc))
+            cmap.set_bad(bad)
+            if under_set:
+                cmap.set_under(under)
+            if over_set:
+                cmap.set_over(over)
+        else:
+            normlize = mpl.colors.Normalize(vmin, vmax)
+            cmin, cmax = normlize([vmin, vmax])
+            cc = np.linspace(cmin, cmax, 256)
+            cmap = mpl.colors.ListedColormap(cmap(cc))
+            under = '#c8c8c8'
+            over = '#c8c8c8'
+            cmap.set_under(under)
+            cmap.set_over(over)
+
+        # get the data shape
+        shape = list(data.shape)
+
+        xticklabels = list(data.columns)
+        yticklabels = list(data.index)
+
+        num_xlabels = len(xticklabels)
+        num_ylabels = len(yticklabels)
+
+        # init a fig and ax
+        # fig, ax = plt.subplots(1,1,figsize=figsize)
+
+        # set pcolormesh x and y
+        x = np.arange(num_xlabels + 1)
+        y = np.arange(0, num_ylabels * 10 + 10, 10)
+        if cbar == True:
+            heatmap = ax.pcolormesh(
+                x, y, plot_data, cmap=cmap, vmin=vmin, vmax=vmax, edgecolor='white')
+            # axins = inset_axes(ax,
+            #                    width="5%",
+            #                    height="100%",
+            #                    loc='upper left',
+            #                    borderpad=0,
+            #                    bbox_to_anchor=(1.2, 0., 1, 1),
+            #                    bbox_transform=ax.transAxes,
+            #                   )
+            axins = inset_axes(ax,
+                               width="100%",
+                               height="5%",
+                               loc='lower center',
+                               borderpad=-3
+                               # bbox_to_anchor=(1.2, 0., 1, 1),
+                               # bbox_transform=ax.transAxes,
+                               )
+            plt.colorbar(heatmap, cax=axins, orientation="horizontal")
+        else:
+            heatmap = ax.pcolormesh(
+                x, y, plot_data, cmap=cmap, vmin=vmin, vmax=vmax, edgecolor='white')
+
+        # adjust the axes and set x,y lim
+        ax.set(xlim=(0, data.shape[1]), ylim=(0, data.shape[0] * 10))
+
+        xticks, xticklabels = _auto_ticks(ax, xticklabels, 0, shape)
+        yticks, yticklabels = _auto_ticks(ax, yticklabels, 1, shape)
+        ax.set(xticks=xticks, yticks=yticks)
+        print(yticks)
+        print(yticklabels)
+        ax.yaxis.tick_right()
+        ax.set_xticklabels(xticklabels)
+        if yticklabel:
+            ax.set_yticklabels(yticklabels)
+        else:
+            ax.tick_params(axis='y', right=False, labelright=False)
+        return ax
+
     @staticmethod
     def rotate_point(x: float, y: float, theta: float):
         """
@@ -684,3 +854,61 @@ class cvmplot():
         diff_matrix = cvmplot.get_diff_matrix(matrix)
         diff_df = pd.DataFrame(diff_matrix, index=labels, columns=labels)
         return diff_df
+
+    @staticmethod
+    def _auto_ticks(ax, labels, axis, shape):
+        """Determine ticks and ticklabels that minimize overlap."""
+        transform = ax.figure.dpi_scale_trans.inverted()
+        bbox = ax.get_window_extent().transformed(transform)
+        size = [bbox.width, bbox.height][axis]
+
+        axis_tag = axis
+        shape.reverse()
+        start = shape[axis_tag]
+        if axis_tag == 1:
+            start = 0
+        axis = [ax.xaxis, ax.yaxis][axis_tag]
+        tick, = axis.set_ticks([0])
+        fontsize = tick.label1.get_size()
+        max_ticks = int(size // (fontsize / 72))
+        if max_ticks < 1:
+            return [], []
+        tick_every = len(labels) // max_ticks + 1
+        tick_every = 1 if tick_every == 0 else tick_every
+        ticks, labels = _skip_ticks(labels, tick_every, start, axis_tag)
+        return ticks, labels
+
+    @staticmethod
+    def _skip_ticks(labels, tickevery, startpoint, axis):
+        """Return ticks and labels at evenly spaced intervals."""
+        n = len(labels)
+        if axis == 0:
+            startpoint = 0
+            if tickevery == 0:
+                ticks, labels = [], []
+            elif tickevery == 1:
+                ticks, labels = np.arange(n) + .5 + startpoint, labels
+            else:
+                start_tick, end_tick, step_tick = startpoint, startpoint + n, tickevery
+                ticks = np.arange(start_tick, end_tick, end_tick) + .5
+                start_label, end_label, setp_label = 0, n, tickevery
+                labels = labels[start_label:end_label:setp_label]
+        else:
+            if tickevery == 0:
+                ticks, labels = [], []
+            elif tickevery == 1:
+                ticks, labels = np.arange(
+                    0, n * 10, 10) + 5 + startpoint, labels
+            else:
+                start_tick, end_tick, step_tick = startpoint, startpoint + n * 10, tickevery
+                ticks = np.arange(start_tick, end_tick, step_tick) + 5
+                start_label, end_label, setp_label = 0, n, tickevery
+                labels = labels[start_label:end_label:setp_label]
+        return ticks, labels
+
+    def get_colormap(name):
+        """Handle changes to matplotlib colormap interface in 3.6."""
+        try:
+            return mpl.colormaps[name]
+        except AttributeError:
+            return mpl.cm.get_cmap(name)
