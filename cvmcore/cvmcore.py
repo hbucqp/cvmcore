@@ -75,11 +75,35 @@ class cvmbox():
 class cvmplot():
     pass
 
+    @staticmethod
+    def _auto_ticks(ax, labels, axis, shape):
+        """Determine ticks and ticklabels that minimize overlap."""
+        transform = ax.figure.dpi_scale_trans.inverted()
+        bbox = ax.get_window_extent().transformed(transform)
+        size = [bbox.width, bbox.height][axis]
+
+        axis_tag = axis
+        shape.reverse()
+        start = shape[axis_tag]
+        if axis_tag == 1:
+            start = 0
+        axis = [ax.xaxis, ax.yaxis][axis_tag]
+        tick, = axis.set_ticks([0])
+        fontsize = tick.label1.get_size()
+        max_ticks = int(size // (fontsize / 72))
+        if max_ticks < 1:
+            return [], []
+        tick_every = len(labels) // max_ticks + 1
+        tick_every = 1 if tick_every == 0 else tick_every
+        ticks, labels = cvmplot._skip_ticks(labels, tick_every, start, axis_tag)
+        return ticks, labels
+
     def rectree(matrix,
                 figsize: Optional[Tuple]=None,
                 labels: Optional[List]=None,
                 no_labels: bool=False,
-                scale_max: float=10):
+                scale_max: float=10,
+                ax=None):
         """
         Drawing a rectangular dendrogram using scipy dendrogram function.
         Parameters
@@ -92,6 +116,9 @@ class cvmplot():
             The list of the sample's name.
         scale_max: float
             The maximum value of the scale.
+        ax : matplotlib Axes, optional
+            Axes in which to draw the plot, otherwise use the currently-active Axes.
+
 
         Returns
         -------
@@ -109,11 +136,17 @@ class cvmplot():
         if figsize == None:
             figsize = (15, 15)
 
-        MatrixS = matrix.shape
+        if ax is None:
+            ax = plt.gca()
+        else:
+            ax=ax
 
-        fig, ax = plt.subplots(1, 1, figsize=figsize)
+        # MatrixS = matrix.shape
+
+        # fig, ax = plt.subplots(1, 1, figsize=figsize)
         dendro_info = dendrogram(
-            matrix, ax=ax, orientation='left', labels=labels, no_labels=no_labels)
+            matrix, ax=ax, orientation='left', no_plot=False, labels=labels, no_labels=no_labels)
+        order = dendro_info['ivl']
 
         # set intervals on axis
         ax.set_xticks(np.arange(0, scale_max, 1))
@@ -127,9 +160,9 @@ class cvmplot():
         ax.xaxis.set_label_position('top')
 
         # save plot
-        plt.tight_layout()
-        plt.show()
-        return dendro_info, ax
+        # plt.tight_layout()
+        # plt.show()
+        return order, ax
 
     def circulartree(Z2,
                      fontsize: float=8,
@@ -676,12 +709,14 @@ class cvmplot():
 
         # get the data shape
         shape = list(data.shape)
+        # print(data)
 
         xticklabels = list(data.columns)
         yticklabels = list(data.index)
 
         num_xlabels = len(xticklabels)
         num_ylabels = len(yticklabels)
+        # print(f'num_ylabels is {num_ylabels}')
 
         # init a fig and ax
         # fig, ax = plt.subplots(1,1,figsize=figsize)
@@ -689,6 +724,8 @@ class cvmplot():
         # set pcolormesh x and y
         x = np.arange(num_xlabels + 1)
         y = np.arange(0, num_ylabels * 10 + 10, 10)
+        # print(x)
+        # print(y)
         if cbar == True:
             heatmap = ax.pcolormesh(
                 x, y, plot_data, cmap=cmap, vmin=vmin, vmax=vmax, edgecolor='white')
@@ -716,8 +753,8 @@ class cvmplot():
         # adjust the axes and set x,y lim
         ax.set(xlim=(0, data.shape[1]), ylim=(0, data.shape[0] * 10))
 
-        xticks, xticklabels = _auto_ticks(ax, xticklabels, 0, shape)
-        yticks, yticklabels = _auto_ticks(ax, yticklabels, 1, shape)
+        xticks, xticklabels = cvmplot._auto_ticks(ax, xticklabels, 0, shape)
+        yticks, yticklabels = cvmplot._auto_ticks(ax, yticklabels, 1, shape)
         ax.set(xticks=xticks, yticks=yticks)
         print(yticks)
         print(yticklabels)
@@ -855,28 +892,7 @@ class cvmplot():
         diff_df = pd.DataFrame(diff_matrix, index=labels, columns=labels)
         return diff_df
 
-    @staticmethod
-    def _auto_ticks(ax, labels, axis, shape):
-        """Determine ticks and ticklabels that minimize overlap."""
-        transform = ax.figure.dpi_scale_trans.inverted()
-        bbox = ax.get_window_extent().transformed(transform)
-        size = [bbox.width, bbox.height][axis]
 
-        axis_tag = axis
-        shape.reverse()
-        start = shape[axis_tag]
-        if axis_tag == 1:
-            start = 0
-        axis = [ax.xaxis, ax.yaxis][axis_tag]
-        tick, = axis.set_ticks([0])
-        fontsize = tick.label1.get_size()
-        max_ticks = int(size // (fontsize / 72))
-        if max_ticks < 1:
-            return [], []
-        tick_every = len(labels) // max_ticks + 1
-        tick_every = 1 if tick_every == 0 else tick_every
-        ticks, labels = _skip_ticks(labels, tick_every, start, axis_tag)
-        return ticks, labels
 
     @staticmethod
     def _skip_ticks(labels, tickevery, startpoint, axis):
