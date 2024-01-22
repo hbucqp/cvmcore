@@ -143,6 +143,8 @@ class cvmplot():
 
         # MatrixS = matrix.shape
 
+        # initiate a figure and axes
+
         # fig, ax = plt.subplots(1, 1, figsize=figsize)
         dendro_info = dendrogram(
             matrix, ax=ax, orientation='left', no_plot=False, labels=labels, no_labels=no_labels)
