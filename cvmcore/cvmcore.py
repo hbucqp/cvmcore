@@ -95,7 +95,8 @@ class cvmplot():
             return [], []
         tick_every = len(labels) // max_ticks + 1
         tick_every = 1 if tick_every == 0 else tick_every
-        ticks, labels = cvmplot._skip_ticks(labels, tick_every, start, axis_tag)
+        ticks, labels = cvmplot._skip_ticks(
+            labels, tick_every, start, axis_tag)
         return ticks, labels
 
     def rectree(matrix,
@@ -139,11 +140,9 @@ class cvmplot():
         if ax is None:
             ax = plt.gca()
         else:
-            ax=ax
+            ax = ax
 
         # MatrixS = matrix.shape
-
-        # initiate a figure and axes
 
         # fig, ax = plt.subplots(1, 1, figsize=figsize)
         dendro_info = dendrogram(
@@ -151,7 +150,8 @@ class cvmplot():
         order = dendro_info['ivl']
 
         # set intervals on axis
-        ax.set_xticks(np.arange(0, scale_max, 1))
+        xticklabels = np.arange(0, scale_max, 1)
+        ax.set_xticks(ticks=np.arange(0, scale_max, 1), labels=xticklabels)
         ax.set_xlim(scale_max, 0)
 
         # move spines of ax
@@ -600,7 +600,7 @@ class cvmplot():
 
     def heatmap(data,
                 order: Optional[List]=None,
-                figsize=None,
+                # figsize=None,
                 cmap=None,
                 yticklabel: bool=True,
                 cbar: bool=False,
@@ -639,10 +639,10 @@ class cvmplot():
         # We always want to have a DataFrame with semantic information
         # and an ndarray to pass to matplotlib
 
-        if figsize == None:
-            figsize = (10, 6)
-        else:
-            figsize = figsize
+        # if figsize == None:
+        #     figsize = (10, 6)
+        # else:
+        #     figsize = figsize
 
         if ax is None:
             ax = plt.gca()
@@ -893,8 +893,6 @@ class cvmplot():
         diff_matrix = cvmplot.get_diff_matrix(matrix)
         diff_df = pd.DataFrame(diff_matrix, index=labels, columns=labels)
         return diff_df
-
-
 
     @staticmethod
     def _skip_ticks(labels, tickevery, startpoint, axis):
