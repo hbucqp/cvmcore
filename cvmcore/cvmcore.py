@@ -8,9 +8,11 @@ import pandas as pd
 from scipy.cluster.hierarchy import linkage, dendrogram, complete, to_tree
 from scipy.spatial.distance import squareform
 from tabulate import tabulate
+from io import StringIO
 
 # from Bio.Blast import NCBIWWW
 from Bio import SeqIO
+from Bio import Phylo
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from Bio.Blast import NCBIXML
@@ -26,6 +28,7 @@ from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
 from matplotlib.transforms import Affine2D
 from matplotlib.colors import LinearSegmentedColormap
+import matplotlib.collections as mpcollections
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from typing import Optional, List, Dict, Union, Tuple
 
@@ -170,7 +173,7 @@ class cvmplot():
                      fontsize: float=8,
                      open_angle: float=0,
                      start_angle: float=0,
-                     figsize: Optional[Tuple]=None,
+                     # figsize: Optional[Tuple]=None,
                      addpoints: bool=False,
                      pointsize: float=15,
                      point_colors: Optional[dict]=None,
@@ -181,6 +184,7 @@ class cvmplot():
                      show: bool=True,
                      branch_color: bool=False,
                      sample_classes: Optional[dict]=None,
+                     ax=None,
 
                      colorlabels: Optional[dict]=None,
                      colorlabels_legend: Optional[dict]=None) -> plt.Axes:
@@ -192,8 +196,6 @@ class cvmplot():
             A dictionary returned by scipy.cluster.hierarchy.dendrogram
         fontsize : float
             A float to specify the font size
-        figsize : (x, y) tuple-like
-            1D tuple-like of floats to specify the figure size
         palette : string
             Matplotlib colormap name.
         branch_color: bool
@@ -245,12 +247,17 @@ class cvmplot():
         Examples
         --------
         """
-        if figsize == None and colorlabels != None:
-            figsize = [7, 5]
-        elif figsize == None and sample_classes != None:
-            figsize = [7, 5]
-        elif figsize == None:
-            figsize = [10, 10]
+        # if figsize == None and colorlabels != None:
+        #     figsize = [7, 5]
+        # elif figsize == None and sample_classes != None:
+        #     figsize = [7, 5]
+        # elif figsize == None:
+        #     figsize = [10, 10]
+
+        if ax == None:
+            ax = plt.gca()
+        else:
+            ax = ax
         linewidth = 0.5
         R = 1
         width = R * 0.1
@@ -278,7 +285,7 @@ class cvmplot():
             cmap = cmp(np.linspace(0, 1, len(ucolors)))
         else:
             cmap = cmp.colors
-        fig, ax = plt.subplots(figsize=figsize)
+        # fig, ax = plt.subplots(figsize=figsize)
         i = 0
         label_coords = []
         leaf_coords = []
@@ -591,11 +598,11 @@ class cvmplot():
                 len(sample_classes) + space * (len(sample_classes) - 1)
         else:
             maxr = R * 1.05
-        plt.xlim(-maxr, maxr)
-        plt.ylim(-maxr, maxr)
+        ax.set(xlim=(-maxr, maxr), ylim=(-maxr, maxr))
+
         # plt.legend(loc="upper right")
         plt.subplots_adjust(left=0.05, right=0.85)
-        plt.show()
+        # plt.show()
         return ax
 
     def heatmap(data,
@@ -666,7 +673,7 @@ class cvmplot():
             else:
                 cmap = mpl.cm.get_cmap('icefire')
         elif isinstance(cmap, str):
-            cmap = get_colormap(cmap)
+            cmap = cvmplot.get_colormap(cmap)
         elif isinstance(cmap, list):
             cmap = mpl.colors.ListedColormap(cmap)
         else:
@@ -741,7 +748,7 @@ class cvmplot():
             #                   )
             axins = inset_axes(ax,
                                width="100%",
-                               height="5%",
+                               height="10%",
                                loc='lower center',
                                borderpad=-3
                                # bbox_to_anchor=(1.2, 0., 1, 1),
@@ -928,3 +935,214 @@ class cvmplot():
             return mpl.colormaps[name]
         except AttributeError:
             return mpl.cm.get_cmap(name)
+
+    def get_x_positions(tree):
+        """Create a mapping of each clade to its horizontal position.
+
+        Dict of {clade: x-coord}
+        """
+        depths = tree.depths()
+        # If there are no branch lengths, assume unit branch lengths
+        if not max(depths.values()):
+            depths = tree.depths(unit_branch_lengths=True)
+        return depths
+
+    def get_y_positions(tree):
+        """Create a mapping of each clade to its vertical position.
+
+        Dict of {clade: y-coord}.
+        Coordinates are negative, and integers for tips.
+        """
+        maxheight = tree.count_terminals()
+        # Rows are defined by the tips
+        heights = {
+            tip: maxheight - i for i, tip in enumerate(reversed(tree.get_terminals()))
+        }
+
+        # Internal nodes: place at midpoint of children
+        def calc_row(clade):
+            for subclade in clade:
+                if subclade not in heights:
+                    calc_row(subclade)
+            # Closure over heights
+            heights[clade] = (
+                heights[clade.clades[0]] + heights[clade.clades[-1]]
+            ) / 2.0
+
+        if tree.root.clades:
+            calc_row(tree.root)
+        return heights
+
+    def phylotree(tree,
+                  show_label: bool =True,
+                  align_label: bool = False,
+                  labelsize: float=8,
+                  color: str='k',
+                  lw: float=1,
+                  ax=None
+                  ):
+        """
+        Plot the given tree using matplotlib
+
+        Parameters
+        ----------
+        tree: linkage matrix
+            tree object from Bio.Phylo.read
+        show_label: bool
+            Weather or not show the tree leaf labels.
+        align_label: book
+            Weather or not align the tree leaf labels.
+        labelsize: float
+            The fontsize of the tree leaf labels.
+        color: str
+            The line color of the vertical and horizontal lines in the tree.
+        lw: float
+            the line with of the vertical and horizontal lines in the tree.
+        ax : matplotlib Axes, optional
+            Axes in which to draw the plot, otherwise use the currently-active Axes.
+        """
+
+        def draw_clade(clade, x_start, color, lw, x_posns, y_posns):
+            """Recursively draw a tree, down from the given clade."""
+
+            # phyloXML-only graphics annotations
+            # if hasattr(clade, "color") and clade.color is not None:
+            #     color = clade.color.to_hex()
+            # if hasattr(clade, "width") and clade.width is not None:
+            #     lw = clade.width * plt.rcParams["lines.linewidth"]
+
+            x_here = x_posns[clade]
+            y_here = y_posns[clade] - 0.5
+
+            # recalculate the x,y coordinates
+            horizontal_linecollections.append(mpcollections.LineCollection(
+                [[(x_start, y_here * 10), (x_here, y_here * 10)]], color=color, lw=lw))
+            # horizontal_points.append((x_start,x_here, y_here))
+            # horizontal_linecollections.append(mpcollections.LineCollection([[(x_start, y_here), (x_here, y_here)]]))
+
+            # Draw a horizontal line from start to here
+            # draw_clade_lines(
+            #     use_linecollection=True,
+            #     orientation="horizontal",
+            #     y_here=y_here,
+            #     x_start=x_start,
+            #     x_here=x_here,
+            #     color=color,
+            #     lw=lw,
+            # )
+            label = str(clade)
+            # print(f'The label is {label}')
+            # print(f'The class name is {clade.__class__.__name__}')
+            if label not in (None, clade.__class__.__name__):
+                label_text = f' {label}'
+                leaf_coords[y_here * 10] = label
+                if show_label and not align_label:
+                    label_list.append(
+                        (x_here, y_here * 10, label_text, 'center'))
+                    # ax.text(
+                    #     x_here,
+                    #     y_here,
+                    #     f" {label}",
+                    #     verticalalignment="center",
+                    #     # color=get_label_color(label),
+                    # )
+                elif show_label and align_label:
+                    label_list.append(
+                        (1.16 * xmax, y_here * 10, label_text, 'center'))
+                    dashed_line.append(mpcollections.LineCollection(
+                        [[(x_here, y_here * 10), (1.15 * xmax, y_here * 10)]], color='grey', lw=lw, linestyle='dashed'))
+                elif not show_label and align_label:
+                    assert show_label, "align_label could not be used without show_lable parameter."
+                # elif not show_label and not align_label
+                else:
+                    label_list.append(
+                        (xmax, y_here * 10, label_text, 'center'))
+
+            if clade.clades:
+                y_top = y_posns[clade.clades[0]] - 0.5
+                y_bot = y_posns[clade.clades[-1]] - 0.5
+                # print(f'The vertical line is ({x_here}, {y_bot*10})({x_here},{y_top*10})')
+                vertical_linecollections.append(mpcollections.LineCollection(
+                    [[(x_here, y_bot * 10), (x_here, y_top * 10)]], color=color, lw=lw))
+                # vertical_points.append((x_here, y_bot, y_top))
+                # vertical_linecollections.append(mpcollections.LineCollection([[(x_here, y_bot), (x_here, y_top)]]))
+                for child in clade.clades:
+                    # print(f'The key is {child}, the x_here is {x_posns[child]}')
+                    draw_clade(child, x_here, color, lw, x_posns, y_posns)
+        # get the x and y posns
+        x_posns = cvmplot.get_x_positions(tree)
+        y_posns = cvmplot.get_y_positions(tree)
+
+        # set xlim and y_lim
+        xmax = max(x_posns.values())
+        ymax = max(y_posns.values())
+        if ax is None:
+            ax = plt.gca()
+        else:
+            ax = ax
+        ax.set(xlim=(-0.05 * xmax, 1.25 * xmax), ylim=(0, ymax * 10))
+        # set intervals on axis
+        xticklabels = np.arange(0, 1.25 * xmax + 0.5, 0.5)
+        ax.set_xticks(ticks=np.arange(
+            0, 1.25 * xmax + 0.5, 0.5), labels=xticklabels)
+
+        # tree plot
+        tree = tree
+        color = color
+        lw = lw
+        align_label = align_label
+        show_label = show_label
+        labelsize = labelsize
+        # set h_line and v_line list
+        horizontal_linecollections = []
+        vertical_linecollections = []
+
+        # set dashed line list for aligned labels
+        dashed_line = []
+
+        # horizontal_points = []
+        # vertical_points = []
+
+        # set labels list
+        label_list = []
+        leaf_coords = {}
+
+        # get horizontal or vertical line
+        draw_clade(clade=tree.root, x_start=0, color='k',
+                   lw=1, x_posns=x_posns, y_posns=y_posns)
+
+        # def inner functions
+
+        # get the order or the leaf label
+        order_label = []
+        for key in sorted(leaf_coords.keys()):
+            order_label.append(leaf_coords[key])
+
+        # draw phylogenetic tree
+        for hline in horizontal_linecollections:
+            ax.add_collection(hline)
+        for vline in vertical_linecollections:
+            ax.add_collection(vline)
+        if show_label:
+            if align_label:
+                for dash in dashed_line:
+                    ax.add_collection(dash)
+                for label in label_list:
+                    ax.text(x=label[0], y=label[1], s=label[2],
+                            verticalalignment=label[-1], fontsize=labelsize)
+            else:
+                for label in label_list:
+                    ax.text(x=label[0], y=label[1], s=label[2],
+                            verticalalignment=label[-1], fontsize=labelsize)
+
+        # move spines of ax
+        ax.spines[['bottom', 'right', 'left']].set_visible(False)
+
+        # move scale bar on top
+        ax.xaxis.tick_top()
+        ax.xaxis.set_label_position('top')
+
+        # move yticks
+        ax.tick_params(axis='y', left=False, labelleft=False)
+
+        return ax, order_label
