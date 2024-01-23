@@ -134,7 +134,7 @@ fig.savefig('Screenshots/dendrogram.png')
 ```
 
 
-![image](https://github.com/hbucqp/cvmcore/tree/main/screenshots/output_7_0.png)
+![image](http://microbe.genesclouds.com.cn/microbe/library/screenshots/output_7_0.png)
 
 
 ### Plot rectangular dendrogram with heatmap
@@ -182,7 +182,7 @@ fig.savefig('Screenshots/test.pdf')
 
 
 
-![image](https://github.com/hbucqp/cvmcore/tree/main/screenshots/output_11_1.png)
+![image](http://microbe.genesclouds.com.cn/microbe/library/screenshots/output_11_1.png)
 
 
 #### set minimum value of heatmap
@@ -209,7 +209,7 @@ fig.savefig('Screenshots/dendrogram_heatmap_minimumvalue.pdf')
 
 
 
-![png](https://github.com/hbucqp/cvmcore/tree/main/screenshots/output_13_1.png)
+![png](http://microbe.genesclouds.com.cn/microbe/library/screenshots/output_13_1.png)
 
 
 #### using cmap to change color
@@ -235,7 +235,7 @@ fig.savefig('Screenshots/dendrogram_heatmap_cmap.pdf')
 
 
 
-![image](https://github.com/hbucqp/cvmcore/tree/main/screenshots/output_15_1.png)
+![image](http://microbe.genesclouds.com.cn/microbe/library/screenshots/output_15_1.png)
 
 
 ### Plot a circular dendrogram
@@ -270,7 +270,7 @@ fig.savefig('Screenshots/circular_dendrogram.png')
 ```
 
 
-![image](https://github.com/hbucqp/cvmcore/tree/main/screenshots/output_20_0.png)
+![image](http://microbe.genesclouds.com.cn/microbe/library/screenshots/output_20_0.png)
 
 
 #### color label
@@ -292,7 +292,7 @@ fig.savefig('Screenshots/circular_dendrogram_color_label.png')
 ```
 
 
-![image](https://github.com/hbucqp/cvmcore/tree/main/screenshots/output_23_0.png)
+![image](http://microbe.genesclouds.com.cn/microbe/library/screenshots/output_23_0.png)
 
 
 #### set open angle
@@ -306,7 +306,7 @@ fig.savefig('Screenshots/circular_dendrogram_openangle.png')
 ```
 
 
-![image](https://github.com/hbucqp/cvmcore/tree/main/screenshots/output_25_0.png)
+![image](http://microbe.genesclouds.com.cn/microbe/library/screenshots/output_25_0.png)
 
 
 #### set start angle
@@ -322,7 +322,7 @@ fig.savefig('Screenshots/circular_dendrogram_startangle.png')
 ```
 
 
-![image](https://github.com/hbucqp/cvmcore/tree/main/screenshots/output_27_0.png)
+![image](http://microbe.genesclouds.com.cn/microbe/library/screenshots/output_27_0.png)
 
 
 #### add point 
@@ -337,7 +337,7 @@ fig.savefig('Screenshots/circular_dendrogram_tippoints.png')
 ```
 
 
-![image](https://github.com/hbucqp/cvmcore/tree/main/screenshots/output_29_0.png)
+![image](http://microbe.genesclouds.com.cn/microbe/library/screenshots/output_29_0.png)
 
 
 
@@ -358,7 +358,7 @@ fig.savefig('Screenshots/phylogenetic tree.png')
 ```
 
 
-![image](https://github.com/hbucqp/cvmcore/tree/main/screenshots/output_35_0.png)
+![image](http://microbe.genesclouds.com.cn/microbe/library/screenshots/output_35_0.png)
 
 
 #### Plot tree with heatmap
@@ -488,7 +488,7 @@ fig.savefig('Screenshots/phylotree_with_heatmap.pdf')
 
 
 
-![image](https://github.com/hbucqp/cvmcore/tree/main/screenshots/output_39_1.png)
+![image](http://microbe.genesclouds.com.cn/microbe/library/screenshots/output_39_1.png)
 
 
 #### remove labels at the tip of the tree
@@ -511,5 +511,5 @@ fig.savefig('Screenshots/phylotree_with_heatmap-remove_tiplable.pdf')
 
 
 
-![image](https://github.com/hbucqp/cvmcore/tree/main/screenshots/output_41_1.png)
+![image](http://microbe.genesclouds.com.cn/microbe/library/screenshots/output_41_1.png)
 
