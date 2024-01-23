@@ -1,3 +1,6 @@
+# cvmcore
+![PyPI - Version](https://img.shields.io/pypi/v/cvmcore)
+
 ## Introduction
 The core function of data analysis for plot or data process used by SZQ lab from China Agricultural University
 
@@ -123,7 +126,7 @@ link_matrix
 
 
 
-### Plot a rectangular dendrogram
+### 1. Plot a rectangular dendrogram
 
 
 ```python
@@ -137,7 +140,7 @@ fig.savefig('Screenshots/dendrogram.png')
 ![image](http://microbe.genesclouds.com.cn/microbe/library/screenshots/output_7_0.png)
 
 
-### Plot rectangular dendrogram with heatmap
+### 2. Plot rectangular dendrogram with heatmap
 
 
 ```python
@@ -183,9 +186,7 @@ fig.savefig('Screenshots/test.pdf')
 
 
 ![image](http://microbe.genesclouds.com.cn/microbe/library/screenshots/output_11_1.png)
-
-
-#### set minimum value of heatmap
+#### 2.1 set minimum value of heatmap
 
 
 ```python
@@ -212,7 +213,7 @@ fig.savefig('Screenshots/dendrogram_heatmap_minimumvalue.pdf')
 ![png](http://microbe.genesclouds.com.cn/microbe/library/screenshots/output_13_1.png)
 
 
-#### using cmap to change color
+#### 2.2 using cmap to change color
 
 
 ```python
@@ -238,7 +239,7 @@ fig.savefig('Screenshots/dendrogram_heatmap_cmap.pdf')
 ![image](http://microbe.genesclouds.com.cn/microbe/library/screenshots/output_15_1.png)
 
 
-### Plot a circular dendrogram
+### 3. Plot a circular dendrogram
 
 
 ```python
@@ -273,7 +274,7 @@ fig.savefig('Screenshots/circular_dendrogram.png')
 ![image](http://microbe.genesclouds.com.cn/microbe/library/screenshots/output_20_0.png)
 
 
-#### color label
+#### 3.1 color label
 
 
 ```python
@@ -295,7 +296,7 @@ fig.savefig('Screenshots/circular_dendrogram_color_label.png')
 ![image](http://microbe.genesclouds.com.cn/microbe/library/screenshots/output_23_0.png)
 
 
-#### set open angle
+#### 3.2 set open angle
 
 
 ```python
@@ -309,7 +310,7 @@ fig.savefig('Screenshots/circular_dendrogram_openangle.png')
 ![image](http://microbe.genesclouds.com.cn/microbe/library/screenshots/output_25_0.png)
 
 
-#### set start angle
+#### 3.3 set start angle
 
 
 ```python
@@ -325,7 +326,7 @@ fig.savefig('Screenshots/circular_dendrogram_startangle.png')
 ![image](http://microbe.genesclouds.com.cn/microbe/library/screenshots/output_27_0.png)
 
 
-#### add point 
+#### 3.4 add point 
 
 
 ```python
@@ -341,7 +342,7 @@ fig.savefig('Screenshots/circular_dendrogram_tippoints.png')
 
 
 
-### Plot phylogenetic tree
+### 4. Plot phylogenetic tree
 
 
 ```python
@@ -361,7 +362,7 @@ fig.savefig('Screenshots/phylogenetic tree.png')
 ![image](http://microbe.genesclouds.com.cn/microbe/library/screenshots/output_35_0.png)
 
 
-#### Plot tree with heatmap
+#### 4.1 Plot tree with heatmap
 
 
 ```python
@@ -491,7 +492,7 @@ fig.savefig('Screenshots/phylotree_with_heatmap.pdf')
 ![image](http://microbe.genesclouds.com.cn/microbe/library/screenshots/output_39_1.png)
 
 
-#### remove labels at the tip of the tree
+#### 4.2 remove labels at the tip of the tree
 
 
 ```python
