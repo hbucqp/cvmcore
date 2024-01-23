@@ -45,19 +45,6 @@ diff_matrix
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -147,7 +134,7 @@ fig.savefig('Screenshots/dendrogram.png')
 ```
 
 
-![png](output_7_0.png)
+![png](https://github.com/hbucqp/cvmcore/tree/main/screenshots/output_7_0.png)
 
 
 ### Plot rectangular dendrogram with heatmap
@@ -195,7 +182,7 @@ fig.savefig('Screenshots/test.pdf')
 
 
 
-![png](output_11_1.png)
+![png](https://github.com/hbucqp/cvmcore/tree/main/screenshots/output_11_1.png)
 
 
 #### set minimum value of heatmap
@@ -222,7 +209,7 @@ fig.savefig('Screenshots/dendrogram_heatmap_minimumvalue.pdf')
 
 
 
-![png](output_13_1.png)
+![png](https://github.com/hbucqp/cvmcore/tree/main/screenshots/output_13_1.png)
 
 
 #### using cmap to change color
@@ -248,7 +235,7 @@ fig.savefig('Screenshots/dendrogram_heatmap_cmap.pdf')
 
 
 
-![png](output_15_1.png)
+![png](https://github.com/hbucqp/cvmcore/tree/main/screenshots/output_15_1.png)
 
 
 ### Plot a circular dendrogram
@@ -283,7 +270,7 @@ fig.savefig('Screenshots/circular_dendrogram.png')
 ```
 
 
-![png](output_20_0.png)
+![png](https://github.com/hbucqp/cvmcore/tree/main/screenshots/output_20_0.png)
 
 
 #### color label
@@ -305,7 +292,7 @@ fig.savefig('Screenshots/circular_dendrogram_color_label.png')
 ```
 
 
-![png](output_23_0.png)
+![png](https://github.com/hbucqp/cvmcore/tree/main/screenshots/output_23_0.png)
 
 
 #### set open angle
@@ -350,23 +337,9 @@ fig.savefig('Screenshots/circular_dendrogram_tippoints.png')
 ```
 
 
-![png](output_29_0.png)
+![png](https://github.com/hbucqp/cvmcore/tree/main/screenshots/output_29_0.png)
 
 
-
-```python
-
-```
-
-
-```python
-
-```
-
-
-```python
-
-```
 
 ### Plot phylogenetic tree
 
@@ -385,7 +358,7 @@ fig.savefig('Screenshots/phylogenetic tree.png')
 ```
 
 
-![png](output_35_0.png)
+![png](https://github.com/hbucqp/cvmcore/tree/main/screenshots/output_35_0.png)
 
 
 #### Plot tree with heatmap
@@ -408,19 +381,6 @@ df_heatmap
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -525,12 +485,10 @@ ax2.xaxis.tick_top()
 fig.savefig('Screenshots/phylotree_with_heatmap.pdf')
 ```
 
-    [ 5 15 25 35 45]
-    ['A', 'B', 'C', 'D', 'E']
 
 
 
-![png](output_39_1.png)
+![png](https://github.com/hbucqp/cvmcore/tree/main/screenshots/output_39_1.png)
 
 
 #### remove labels at the tip of the tree
@@ -551,10 +509,7 @@ ax2.xaxis.tick_top()
 fig.savefig('Screenshots/phylotree_with_heatmap-remove_tiplable.pdf')
 ```
 
-    [ 5 15 25 35 45]
-    ['A', 'B', 'C', 'D', 'E']
 
 
-
-![png](output_41_1.png)
+![png](https://github.com/hbucqp/cvmcore/tree/main/screenshots/output_41_1.png)
 
