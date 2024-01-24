@@ -1,5 +1,7 @@
 # cvmcore
 ![PyPI - Version](https://img.shields.io/pypi/v/cvmcore)
+![Static Badge](https://img.shields.io/badge/OS-_Windows_%7C_Mac_%7C_Linux-steelblue)
+
 
 ## Introduction
 The core function of data analysis for plot or data process used by SZQ lab from China Agricultural University
@@ -550,7 +552,7 @@ fig.tight_layout(w_pad=-2)
 ax1, order = cvmplot.phylotree(tree=tree, color='k', lw=1, ax=ax1, show_label=True, align_label=True, labelsize=15)
 ax2 = cvmplot.heatmap(df_heatmap, order=order, ax=ax2, cbar=True, vmin=90, yticklabel=False)
 # add ax3 heatmap
-ax3 = cvmplot.heatmap(df_heatmap, order=row_order, ax=ax3, cmap='Blues', cbar=True, yticklabel=True)
+ax3 = cvmplot.heatmap(df_heatmap, order=order, ax=ax3, cmap='Blues', cbar=True, yticklabel=True)
 
 #set ticklabels property of x or y from ax1, ax2, ax3
 ax1.set_xticklabels(ax1.get_xticklabels(), fontsize=15)
