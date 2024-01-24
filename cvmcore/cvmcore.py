@@ -746,13 +746,15 @@ class cvmplot():
             #                    bbox_to_anchor=(1.2, 0., 1, 1),
             #                    bbox_transform=ax.transAxes,
             #                   )
+            # axins = ax.inset_axes([0, -0.5, 1, 0.1], zorder=5)
             axins = inset_axes(ax,
                                width="100%",
                                height="10%",
                                loc='lower center',
-                               borderpad=-3
-                               # bbox_to_anchor=(1.2, 0., 1, 1),
-                               # bbox_transform=ax.transAxes,
+                               borderpad=-3,
+                               axes_kwargs={'zorder': 5},
+                               bbox_to_anchor=(0, 0., 1, 1),
+                               bbox_transform=ax.transAxes
                                )
             plt.colorbar(heatmap, cax=axins, orientation="horizontal")
         else:
