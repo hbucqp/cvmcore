@@ -186,6 +186,35 @@ fig.savefig('Screenshots/test.pdf', bbox_inches='tight')
 
 
 ![image](http://microbe.genesclouds.com.cn/microbe/library/screenshots/output_11_1.png)
+
+```python
+fig, (ax1, ax2, ax3) = plt.subplots(1,3,figsize=(12,3), gridspec_kw={'width_ratios': [1, 2, 2]})
+
+fig.tight_layout(w_pad=-2)
+
+row_order, ax1 = cvmplot.rectree(linkage_matrix,labels=sample, no_labels=True, scale_max=3, ax=ax1)
+
+# remove the yticklabels in ax2
+ax2 = cvmplot.heatmap(df_heatmap, order=row_order, ax=ax2, cbar=True, yticklabel=False)
+# add ax3 heatmap
+ax3 = cvmplot.heatmap(df_heatmap, order=row_order, ax=ax3, cmap='Blues', cbar=True, yticklabel=True)
+
+#set ticklabels property of x or y from ax1, ax2, ax3
+ax1.set_xticklabels(ax1.get_xticklabels(), fontsize=15)
+
+ax2.set_xticklabels(ax2.get_xticklabels(), rotation=90, fontsize=15)
+ax2.xaxis.tick_top()
+
+ax3.set_xticklabels(ax3.get_xticklabels(), rotation=90, fontsize=15)
+ax3.set_yticklabels(ax3.get_yticklabels(), fontsize=15)
+ax3.xaxis.tick_top()
+
+
+# fig.tight_layout()
+fig.savefig('Screenshots/multiple_heatmap.png', bbox_inches='tight')
+```
+![image](http://microbe.genesclouds.com.cn/microbe/library/screenshots/multiple_heatmap.png)
+
 #### 2.1 set minimum value of heatmap
 
 
@@ -514,3 +543,27 @@ fig.savefig('Screenshots/phylotree_with_heatmap-remove_tiplable.pdf', bbox_inche
 
 ![image](http://microbe.genesclouds.com.cn/microbe/library/screenshots/output_41_1.png)
 
+#### 4.3 Plot multiple heatmap with phylotree
+```
+fig,(ax1, ax2, ax3)= plt.subplots(1,3, figsize=(12, 3), gridspec_kw={'width_ratios':[1, 2, 2]})
+fig.tight_layout(w_pad=-2)
+ax1, order = cvmplot.phylotree(tree=tree, color='k', lw=1, ax=ax1, show_label=True, align_label=True, labelsize=15)
+ax2 = cvmplot.heatmap(df_heatmap, order=order, ax=ax2, cbar=True, vmin=90, yticklabel=False)
+# add ax3 heatmap
+ax3 = cvmplot.heatmap(df_heatmap, order=row_order, ax=ax3, cmap='Blues', cbar=True, yticklabel=True)
+
+#set ticklabels property of x or y from ax1, ax2, ax3
+ax1.set_xticklabels(ax1.get_xticklabels(), fontsize=15)
+
+ax2.set_xticklabels(ax2.get_xticklabels(), rotation=90, fontsize=15)
+ax2.xaxis.tick_top()
+
+ax3.set_xticklabels(ax3.get_xticklabels(), rotation=90, fontsize=15)
+ax3.set_yticklabels(ax3.get_yticklabels(), fontsize=15)
+ax3.xaxis.tick_top()
+
+
+# fig.tight_layout()
+fig.savefig('Screenshots/phylotree_multiple_heatmap.png', bbox_inches='tight')
+```
+![image](http://microbe.genesclouds.com.cn/microbe/library/screenshots/phylotree_multiple_heatmap.png)
