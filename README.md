@@ -177,7 +177,7 @@ ax2.set_xticklabels(ax2.get_xticklabels(), rotation=90, fontsize=15)
 ax2.set_yticklabels(ax2.get_yticklabels(), fontsize=15)
 ax2.xaxis.tick_top()
 
-fig.savefig('Screenshots/test.pdf')
+fig.savefig('Screenshots/test.pdf', bbox_inches='tight')
 ```
 
     [ 5 15 25 35 45]
@@ -190,8 +190,8 @@ fig.savefig('Screenshots/test.pdf')
 
 
 ```python
-fig, (ax1, ax2) = plt.subplots(1,2,figsize=(8,2.4), gridspec_kw={'width_ratios': [1, 2]})
-fig.tight_layout(pad=-2)
+fig, (ax1, ax2) = plt.subplots(1,2,figsize=(8,3), gridspec_kw={'width_ratios': [1, 2]})
+fig.tight_layout(w_pad=-2)
 
 order, ax1 = cvmplot.rectree(linkage_matrix,labels=sample, no_labels=True, scale_max=3, ax=ax1)
 cvmplot.heatmap(df_heatmap, order=order, ax=ax2, cbar=True, vmin=90)
@@ -202,7 +202,7 @@ ax2.set_xticklabels(ax2.get_xticklabels(), rotation=90, fontsize=15)
 ax2.set_yticklabels(ax2.get_yticklabels(), fontsize=15)
 ax2.xaxis.tick_top()
 
-fig.savefig('Screenshots/dendrogram_heatmap_minimumvalue.pdf')
+fig.savefig('Screenshots/dendrogram_heatmap_minimumvalue.pdf', bbox_inches='tight')
 ```
 
     [ 5 15 25 35 45]
@@ -217,8 +217,8 @@ fig.savefig('Screenshots/dendrogram_heatmap_minimumvalue.pdf')
 
 
 ```python
-fig, (ax1, ax2) = plt.subplots(1,2,figsize=(8,2.4), gridspec_kw={'width_ratios': [1, 2]})
-fig.tight_layout(pad=-2)
+fig, (ax1, ax2) = plt.subplots(1,2,figsize=(8,3), gridspec_kw={'width_ratios': [1, 2]})
+fig.tight_layout(w_pad=-2)
 
 order, ax1 = cvmplot.rectree(linkage_matrix,labels=sample, no_labels=True, scale_max=3, ax=ax1)
 cvmplot.heatmap(df_heatmap, order=order, ax=ax2, cmap='tab20', cbar=True)
@@ -228,7 +228,7 @@ ax1.set_xticklabels(ax1.get_xticklabels(), fontsize=15)
 ax2.set_xticklabels(ax2.get_xticklabels(), rotation=90, fontsize=15)
 ax2.set_yticklabels(ax2.get_yticklabels(), fontsize=15)
 ax2.xaxis.tick_top()
-fig.savefig('Screenshots/dendrogram_heatmap_cmap.pdf')
+fig.savefig('Screenshots/dendrogram_heatmap_cmap.pdf', bbox_inches='tight')
 ```
 
     [ 5 15 25 35 45]
@@ -267,7 +267,7 @@ fig, ax= plt.subplots(1,1,figsize=(10,10))
 
 cvmplot.circulartree(Z2,addlabels=True, fontsize=10, ax=ax)
 fig.tight_layout()
-fig.savefig('Screenshots/circular_dendrogram.png')
+fig.savefig('Screenshots/circular_dendrogram.png', bbox_inches='tight')
 ```
 
 
@@ -472,8 +472,8 @@ df_heatmap
 
 
 ```python
-fig,(ax1, ax2)= plt.subplots(1,2, figsize=(10, 3), gridspec_kw={'width_ratios':[1, 2]})
-fig.tight_layout(pad=-2)
+fig,(ax1, ax2)= plt.subplots(1,2, figsize=(8, 3), gridspec_kw={'width_ratios':[1, 2]})
+fig.tight_layout(w_pad=-2)
 ax1, order = cvmplot.phylotree(tree=tree, color='k', lw=1, ax=ax1, show_label=True, align_label=True, labelsize=15)
 cvmplot.heatmap(df_heatmap, order=order, ax=ax2, cbar=True, vmin=90)
 
@@ -496,8 +496,8 @@ fig.savefig('Screenshots/phylotree_with_heatmap.pdf')
 
 
 ```python
-fig,(ax1, ax2)= plt.subplots(1,2, figsize=(10, 3), gridspec_kw={'width_ratios':[1, 2]})
-fig.tight_layout(pad=-2)
+fig,(ax1, ax2)= plt.subplots(1,2, figsize=(8, 3), gridspec_kw={'width_ratios':[1, 2]})
+fig.tight_layout(w_pad=-2)
 ax1, order = cvmplot.phylotree(tree=tree, color='k', lw=1, ax=ax1, show_label=False)
 cvmplot.heatmap(df_heatmap, order=order, ax=ax2, cbar=True, vmin=90)
 
@@ -507,7 +507,7 @@ ax2.set_xticklabels(ax2.get_xticklabels(), rotation=90, fontsize=15)
 ax2.set_yticklabels(ax2.get_yticklabels(), fontsize=15)
 ax2.xaxis.tick_top()
 
-fig.savefig('Screenshots/phylotree_with_heatmap-remove_tiplable.pdf')
+fig.savefig('Screenshots/phylotree_with_heatmap-remove_tiplable.pdf', bbox_inches='tight')
 ```
 
 
