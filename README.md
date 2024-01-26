@@ -712,3 +712,4 @@ ax3.xaxis.tick_top()
 # fig.tight_layout()
 fig.savefig('screenshots/phylotree_heatmap_withgenes.png', bbox_inches='tight')
 ```
+![image](http://microbe.genesclouds.com.cn/microbe/library/screenshots/phylotree_heatmap_withgenes.png)
