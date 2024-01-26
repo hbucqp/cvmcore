@@ -25,7 +25,7 @@ import matplotlib
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 from matplotlib.lines import Line2D
-from matplotlib.patches import Patch
+from matplotlib.patches import Patch, FancyArrow
 from matplotlib.transforms import Affine2D
 from matplotlib.colors import LinearSegmentedColormap
 import matplotlib.collections as mpcollections
@@ -1148,3 +1148,235 @@ class cvmplot():
         ax.tick_params(axis='y', left=False, labelleft=False)
 
         return ax, order_label
+
+    def _arrow_patch(
+        y_loc: float,
+        arrowlabel: str,
+        start: float=0,
+        end: float=5000,
+        strand: int=1,
+        color: str="#ec9631",
+        ylim: Optional[Tuple]=(-3, 3),
+        max_track_size: float=5000,
+        no_head_length: bool = False,
+        label_track: str='all'
+    ) -> FancyArrow:
+        """Arrow patch
+
+        Parameters
+        ----------
+        y_loc: float
+            The y coord of the arrow tail.
+        start : int
+            Start position
+        end : int
+            End position
+        strand: int
+            1: forward strand, -1: reverse strand.
+        color: str
+            The color or the arrow
+        ylim : tuple[float, float]
+            height of the track limit (Used for calculation of the arrow head width).
+        max_track_size : int
+            Max track size (Use for head length calculation)
+        no_head_length : bool, optional
+            If True, set head length as 0
+
+        Returns
+        -------
+        arrow_patch : FancyArrow
+            Arrow patch
+        label_coords: tuple
+            (label_xcoords, label_ycoords, label)
+        """
+        # x, y
+        x = end if strand == -1 else start
+
+        # for y_loc in np.arange(5, len(order)*10+5, 10):
+        y = y_loc
+
+        assert start < end, f"The end position:{end} should great than start:{start} position"
+        length = end - start
+        dx, dy = length * strand, 0
+
+        # head width
+        max_width = ylim[1] - ylim[0]
+        head_width = max_width
+
+        # lable coords
+        label_x = x + length * strand / 2
+        label_y = y_loc + max_width / 2 + 1
+
+        label_coords = (label_x, label_y, arrowlabel)
+
+        # print(label_coords)
+
+        # if self.is_bigstyle:
+        #     head_width = max_width
+        # else:
+        #     head_width = max_width / 2
+        # shaft_width
+        shaft_width = head_width * 0.5
+        # head length
+        head_length = max_track_size * 0.015
+        if length < head_length:
+            head_length = length
+
+        if no_head_length:
+            head_length = 0
+            head_width = shaft_width
+        # print(f'head_width is {head_width}')
+        # print(f'head_length is {head_length}')
+
+        if color == None:
+            color = "#ec9631"
+
+        arrow = FancyArrow(
+            x,
+            y,
+            dx,
+            dy,
+            width=shaft_width,
+            length_includes_head=True,
+            head_width=head_width,
+            head_length=head_length,
+            color=color
+        )
+
+        return arrow, label_coords
+
+    def get_arrows(dc: Optional[Dict],
+                   order: Optional[List],
+                   label_track: str='all',
+                   ylim: Optional[Tuple]=(-3, 3)
+                   ):
+        """
+        Parameter
+        ---------
+        dc: Dict
+            The Dict of the arrow corresponding info.
+            {'yticklabel':[(start, end, strand, arrowlabel, color), (start, end, strand, arrowlabel, color)...]}
+        order: list
+            The list or the yticklabels (Used for the y coordinates of arrow tail).
+        label_track: {'all', 'top', 'bottom'}, default: 'all'
+            The track that the label should be showed.
+
+        Returns
+        ------
+        arrow_patches : list of FancyArrow
+            Arrow patch list
+        label_coords: list
+            [(label_xcoords, label_ycoords, label1), (label_xcoords, label_ycoords, label2), ...]
+        """
+        arrows = []
+        arrowlabels = []
+        if isinstance(order, list):
+            num_yticks = len(order)
+            ticks_order = np.arange(5, 10 * num_yticks + 5, 10)
+        # get the top and bottom track
+        max_track = ticks_order[-1]
+        min_track = ticks_order[0]
+
+        # check label_track
+        assert label_track in ['top', 'bottom',
+                               'all'], f'{label_track} not in the choosable list]'
+
+        if isinstance(dc, dict):
+            for yticklabel, ytick in zip(order, ticks_order):
+                for arrow in dc[yticklabel]:
+                    start, end, strand, arrowlabel, color = arrow['START'], arrow[
+                        'END'], arrow['STRAND'], arrow['LABEL'], arrow['COLOR']
+                    arrows.append(cvmplot._arrow_patch(
+                        start=start, end=end, strand=strand, arrowlabel=arrowlabel, color=color, y_loc=ytick, ylim=ylim)[0])
+                    if label_track == 'all':
+                        arrowlabels.append(cvmplot._arrow_patch(
+                            start=start, end=end, strand=strand, arrowlabel=arrowlabel, color=color, y_loc=ytick, ylim=ylim)[1])
+                    elif label_track == 'top':
+                        if ytick == max_track:
+                            arrowlabels.append(cvmplot._arrow_patch(
+                                start=start, end=end, strand=strand, arrowlabel=arrowlabel, color=color, y_loc=ytick, ylim=ylim)[1])
+                        else:
+                            next
+                    if label_track == 'bottom':
+                        if ytick == min_track:
+                            arrowlabels.append(cvmplot._arrow_patch(
+                                start=start, end=end, strand=strand, arrowlabel=arrowlabel, color=color, y_loc=ytick, ylim=ylim)[1])
+                        else:
+                            next
+
+        return arrows, arrowlabels
+
+    def plotgenes(dc=Optional[Dict],
+                  order=Optional[List],
+                  addlabels: bool=False,
+                  ax=None,
+                  max_track_size: int=5000,
+                  trackname_size: int = 18,
+                  label_track: str='all',
+                  label_rot: int=45,
+                  label_size: int=12,
+                  ylim: Optional[Tuple]=(-3, 3)
+                  ) -> plt.Axes:
+        """
+        Drawing the gene environment.
+
+        Paramters
+        ---------
+        dc: dict
+            The Dict of the arrow corresponding info.
+            {'yticklabel':[("START":0, "END":1000, "STRAND":1, "ARROWLABEL":'test', "COLOR":'#ec9631'),
+                           ("START":1500, "END":2500, "STRAND":-1, "ARROWLABEL":'test1', "COLOR":'#ec9631'),...]}.
+        order: list
+            The yticklabels order
+        ax : matplotlib Axes, optional
+            Axes in which to draw the plot, otherwise use the currently-active Axes.
+        max_track_size: int.
+            Max track size (Use for head length calculation).
+        label_track: {'all', 'top', 'bottom'}, default: 'all'
+            The track that the label should be showed.
+        label_rot: float
+            The rotation angle of the label.
+        label_size: float
+            The label size of the labels.
+        ylim : tuple[float, float]. Default:(-3,3)
+            height of the track limit (Used for calculation of the arrow head width).
+
+
+        Returns
+        ---------
+        plt.Axes
+        """
+        # arrows, labels = cvmplot.get_arrows(arrow_dict, order)
+        if ax is None:
+            ax = plt.gca()
+        else:
+            ax = ax
+        arrows, labels = cvmplot.get_arrows(
+            dc=dc, order=order, label_track=label_track, ylim=ylim)
+        # print(labels)
+
+        if addlabels:
+            for label in labels:
+                ax.text(x=label[0], y=label[1], s=label[2], fontdict={'rotation': label_rot, 'ha': 'left',
+                                                                      'fontsize': label_size
+                                                                      })
+
+        # add arrows
+        for arrow in arrows:
+            ax.add_patch(arrow)
+
+        # add tracks or hlines
+        for y_loc in np.arange(5, 10 * len(order) + 5, 10):
+            ax.hlines(y=y_loc, xmin=0, xmax=max_track_size,
+                      zorder=0, color='#757575', linewidth=1)
+
+        # ax settings
+        ax.set_yticks(np.arange(5, 10 * len(order) + 5, 10),
+                      labels=order, fontsize=trackname_size)
+        # ax.set_yticklables(ax.get_yticklabels(), fontsize=trackname_size)
+        ax.set_xlim(0, max_track_size)
+        ax.set_ylim(0, 10 * len(order))
+        ax.spines[['top', 'left', 'right']].set_visible(False)
+        ax.tick_params(axis='y', right=False)
+        ax.yaxis.tick_right()
+        return ax
