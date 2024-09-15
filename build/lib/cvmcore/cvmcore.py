@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 
 # data process
 import dask.array as da
@@ -35,6 +36,75 @@ from typing import Optional, List, Dict, Union, Tuple
 plt.rcParams['font.family'] = 'sans-serif'
 plt.rcParams['font.sans-serif'] = ['Arial']
 plt.rcParams['svg.fonttype'] = 'none'
+
+
+class cfunc():
+    pass
+
+    @staticmethod
+    def is_fasta(file):
+        """
+        chcek if the input file is fasta format
+        """
+        try:
+            with open(file, "r") as handle:
+                fasta = SeqIO.parse(handle, "fasta")
+                # False when `fasta` is empty, i.e. wasn't a FASTA file
+                return any(fasta)
+        except:
+            return False
+
+    def get_mod_time(file):
+        """
+        Return the last modified time of file as YYYY-MM-DD string format.
+        Parameters
+        ----------
+        file :
+            file path string
+        Returns
+        ----------
+        Raises
+        ----------
+        Notes
+        ----------
+        References
+        ----------
+        See Also
+        ----------
+        Examples
+        ----------
+        """
+        file = os.path.abspath(file)
+        md_time = os.stat(file).st_mtime
+        lst_mod_time = time.strftime("%Y-%m-%d", time.localtime(md_time))
+        return lst_mod_time
+
+    def check_sequence_type(file_path):
+        """
+        Check the input file type (DNA or Amino Acid)
+        """
+        try:
+            # Read the sequence from the file
+            records = list(SeqIO.parse(file_path, "fasta"))
+            if not records:
+                return "Unknown"
+
+            sequence = str(records[0].seq).upper()
+
+            # Define sets of characters for DNA and amino acids
+            dna_chars = set("ATCG")
+            amino_acid_chars = set("ACDEFGHIKLMNPQRSTVWY")
+
+            # Check if the sequence contains only DNA characters
+            if set(sequence).issubset(dna_chars):
+                return "DNA"
+            # Check if the sequence contains only amino acid characters
+            elif set(sequence).issubset(amino_acid_chars):
+                return "Amino Acid"
+            else:
+                return "Unknown"
+        except Exception as e:
+            return f"Error: {e}"
 
 
 class cvmbox():
