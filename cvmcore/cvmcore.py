@@ -10,15 +10,15 @@ from scipy.cluster.hierarchy import linkage, dendrogram, complete, to_tree
 from scipy.spatial.distance import squareform
 from tabulate import tabulate
 from io import StringIO
-
+import warnings
 # from Bio.Blast import NCBIWWW
-from Bio import SeqIO
-from Bio import Phylo
-from Bio.Seq import Seq
-from Bio.SeqRecord import SeqRecord
-from Bio.Blast import NCBIXML
-from Bio.Blast.Applications import NcbiblastnCommandline
-from Bio.Blast.Applications import NcbimakeblastdbCommandline
+with warnings.catch_warnings():
+    warnings.simplefilter('ignore', category=DeprecationWarning)
+    from Bio import SeqIO
+    from Bio import Phylo
+    from Bio.Seq import Seq
+    from Bio.SeqRecord import SeqRecord
+    from Bio.Blast import NCBIXML
 
 
 # matplotlib
@@ -48,10 +48,13 @@ class cfunc():
         """
         try:
             with open(file, "r") as handle:
-                fasta = SeqIO.parse(handle, "fasta")
+                records = SeqIO.parse(handle, "fasta")
                 # False when `fasta` is empty, i.e. wasn't a FASTA file
-                return any(fasta)
+                for record in records:
+                    pass
+            return true
         except:
+            print(f'The input file {file} is not a valid fasta file.')
             return False
 
     def get_mod_time(file):
