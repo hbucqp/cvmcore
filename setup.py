@@ -18,7 +18,7 @@ except ImportError:
 
 
 requirements = [
-    'Bio', 'pandas', 'setuptools', 'matplotlib', 'numpy', 'scipy', 'tabulate'
+    'Bio', 'pandas', 'setuptools', 'matplotlib', 'numpy', 'scipy', 'tabulate', 'dask'
 ]
 
 about = {}
